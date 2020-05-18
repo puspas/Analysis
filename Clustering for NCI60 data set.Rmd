@@ -1,0 +1,111 @@
+
+---
+title: "Clustering Method for NCI60 data set."
+author: "By Puspanjali Subudhi"
+output:
+  html_document:
+    highlight: tango
+    theme: lumen
+  pdf_document: default
+  word_document: default
+---
+---
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+
+***OBJECTIVE:***
+
+
+***Using the clustering method to "NCI60"(cancer cell line microarray) data, with the goal of finding out whether or not the observations cluster into the distinct types of cancer. A comparison between K_means and hierarchical clustering.***
+
+
+
+```{r}
+#NCI60 data set info
+library(ISLR)
+nci.labs=NCI60$labs
+nci.data=NCI60$data
+dim(nci.data)
+```
+
+```{r}
+nci.labs[1:4]
+table(nci.labs)
+nci.labs
+```
+
+```{r}
+sd.data=scale(nci.data) # standardized the variables (mean zero and standard deviation one).
+```
+***Comparison between complete, average and single linkage.***
+
+```{r}
+par(mfrow=c(1,1))
+data.dist = dist(sd.data)
+plot(hclust(data.dist),labels=nci.labs,main="Complete Linkage",
+xlab="",sub="",ylab = "",cex=".5",col="blue") #Hierarchical clustering of the observations using Complete Linkage.
+
+```
+
+
+```{r}
+par(mfrow=c(1,1)) 
+plot(hclust(data.dist,method="average"),labels=nci.labs,main="AverageLinkage",
+xlab="",sub="",ylab = "",cex=".5",col="blue") #Hierarchical clustering of the observations using Average linkage.
+```
+
+```{r}
+par(mfrow=c(1,1))
+plot(hclust(data.dist,method="single"),labels=nci.labs,main="SingleLinkage",
+xlab="",sub="",ylab= "",cex=".5",col="blue") #Hierarchical clustering of the observations using Single Linkage.
+```
+
+
+
+
+***OBSERVATIONS:***
+
+***Single clusters tend to yield trailing clusters: very large clusters into which individual observations attached one by one.***
+
+***On the other hand, complete and average linkage tends to yield more balanced and attractive clusters.***
+
+***For this reason complete and average linkage are preferred to single linkage. Cell lines within a single cancer type do tend to cluster together, although the clustering is not perfect.***
+
+
+```{r}
+hc.out=hclust(dist(sd.data))
+hc.clusters=cutree(hc.out,4)
+table(hc.clusters,nci.labs)
+```
+
+***We can see a clear pattern that all the leukemia cell lines fall under cluster 3 where the breast cancer cells are spread out over three different cluster.***
+
+
+```{r}
+plot(hc.out,labels=nci.labs,main="Cluster Dendrogram",xlab="",sub="",ylab = "",cex=".5", col="25",cex=".5")
+abline(h=139, col="red")
+```
+
+***The argument h=139 plot a horizontal line  at height 139. This is the height result in 4 distinct clustering.***
+
+```{r}
+hc.out 
+```
+
+
+```{r}
+set.seed(2)
+km.out=kmeans(sd.data,4,nstart=20)
+km.clusters=km.out$cluster
+table(km.clusters,hc.clusters)
+```
+***We see that the four clusters obtaining hierarchical clustering and K-means clustering are yielding different results. Cluster 2 in K-means clustering is identical to cluster 3 in hierarchical clustering. on the other hand the other clusters are differ.***
+
+***CONCLUSION:*** 
+
+***Hierarchical clustering performs better clustering in NCI60 data set instead of K-means***
+
